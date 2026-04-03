@@ -38,7 +38,7 @@ def get_db() -> Session:
         db.close()
 
 
-ADMIN_PASSPHRASE = "admin123"
+ADMIN_PASSPHRASE = os.getenv("ADMIN_PASSPHRASE")
 
 def verify_admin(passphrase: str = Query(..., description="The highly secured authorization key.")) -> bool:
     """Dependency to protect administrator routes from unauthorized access."""

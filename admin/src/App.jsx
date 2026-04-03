@@ -9,26 +9,25 @@ import {
   RefreshCw,
   LogOut,
   ShieldCheck,
-  Search
+  Search,
+  Activity,
+  CheckCircle2
 } from 'lucide-react'
 
 const API_BASE = import.meta.env.VITE_BACKEND_URL
 
 const containerVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 10 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.6,
-      staggerChildren: 0.1
-    }
+    transition: { duration: 0.4, staggerChildren: 0.05 }
   },
-  exit: { opacity: 0, scale: 0.95 }
+  exit: { opacity: 0, scale: 0.98 }
 }
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0 }
 }
 
@@ -39,7 +38,7 @@ const AdminApp = () => {
   const [comments, setComments] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeTab, setActiveTab] = useState('overview') // overview, waitlist, moderation
+  const [activeTab, setActiveTab] = useState('overview')
 
   const handleLogin = async (pass) => {
     setLoading(true)
@@ -94,116 +93,137 @@ const AdminApp = () => {
     u.email.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  return (
-    <div className="min-h-screen relative p-4 sm:p-10 md:p-24 overflow-y-auto">
-      <div className="mesh-bg">
-        <div className="blob blob-1" />
-        <div className="blob blob-2" />
-        <div className="blob blob-3" />
-      </div>
+  const activeVol = users.length * 50000;
 
+  return (
+    <>
       <AnimatePresence mode="wait">
         {view === 'login' && (
-          <div className="flex items-center justify-center min-h-[80vh]">
-            <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="glass-card p-12 w-full max-w-md text-center relative">
-              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-accent-primary/20 rounded-full blur-2xl -z-10" />
-              <ShieldCheck size={48} className="mx-auto mb-6 text-accent-primary" />
-              <h2 className="text-4xl font-black mb-2">Admin Panel</h2>
-              <p className="text-dim mb-8">Authorised personals only</p>
+          <div className="login-container">
+            <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="login-card">
+              <div className="login-icon">
+                <ShieldCheck size={32} />
+              </div>
+              <h2 className="login-title">Sign in to Console</h2>
+              <p className="login-subtitle">Enter your secure passphrase to continue.</p>
 
               <input
                 type="password"
-                placeholder="Enter Passphrase"
-                className="input-field text-center mb-6"
+                placeholder="Passphrase"
+                className="input-field"
+                style={{ textAlign: 'center' }}
                 value={passphrase}
                 onChange={e => setPassphrase(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleLogin(passphrase)}
               />
               <button
                 onClick={() => handleLogin(passphrase)}
-                className="btn-primary w-full py-5 text-xl"
+                className="btn-primary"
                 disabled={loading}
               >
-                {loading ? 'Verifying...' : 'Access Terminal'}
+                {loading ? 'Authenticating...' : 'Sign In'}
               </button>
             </motion.div>
           </div>
         )}
 
         {view === 'dashboard' && (
-          <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="w-full max-w-7xl mx-auto py-10">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
-              <div>
-                <h1 className="text-5xl font-black mb-3 text-white">Dashboard</h1>
-                <div className="flex items-center gap-4 text-dim text-lg">
-                  <div className="flex items-center gap-2">
-                    <Users size={18} /> {users.length} Applicants
-                  </div>
-                  <div className="w-1 h-1 bg-white/20 rounded-full" />
-                  <div className="flex items-center gap-2">
-                    <MessageSquare size={18} /> {comments.length} Comments
-                  </div>
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="app-container">
+            
+            <nav className="top-nav">
+              <div className="brand-section">
+                <div className="brand-icon">
+                  <ShieldCheck size={20} />
                 </div>
+                <span className="brand-text">Gifthub Admin</span>
               </div>
+              <div className="nav-actions">
+                <button onClick={handleRefresh} className="btn-secondary">
+                  <RefreshCw size={14} className={loading ? 'spin-icon text-[#4f46e5]' : ''} /> 
+                  <span>Sync Data</span>
+                </button>
+                <button onClick={() => setView('login')} className="btn-danger">
+                  <LogOut size={14} /> 
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </nav>
 
-              <div className="flex flex-wrap gap-4 w-full md:w-auto">
-                <button onClick={handleRefresh} className="btn-show-more flex-1 md:flex-none justify-center">
-                  <RefreshCw size={20} className={loading ? 'animate-spin' : ''} /> Refresh
-                </button>
-                <button onClick={() => setView('login')} className="btn-show-more flex-1 md:flex-none justify-center bg-red-500/5 hover:bg-red-500/10 border-red-500/20 text-red-400">
-                  <LogOut size={20} /> Logout
-                </button>
+            <header className="dashboard-header">
+              <h1 className="dashboard-title">Dashboard</h1>
+              <div className="dashboard-stats">
+                <div className="stat-item">
+                  <Users size={14} /> {users.length} Applicants
+                </div>
+                <div>&bull;</div>
+                <div className="stat-item">
+                  <MessageSquare size={14} /> {comments.length} Comments
+                </div>
               </div>
             </header>
 
-            <div className="flex gap-2 mb-12 bg-white/5 p-1.5 rounded-2xl w-fit">
+            <div className="tabs-container">
               {[
-                { id: 'overview', label: 'Overview', icon: CreditCard },
-                { id: 'waitlist', label: 'Waitlist', icon: Users },
-                { id: 'moderation', label: 'Moderation', icon: MessageSquare },
+                { id: 'overview', label: 'Overview' },
+                { id: 'waitlist', label: 'Waitlist' },
+                { id: 'moderation', label: 'Moderation' },
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab === tab.id
-                      ? 'bg-accent-primary text-white shadow-lg shadow-accent-primary/20'
-                      : 'text-dim hover:text-white hover:bg-white/5'
-                    }`}
+                  className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
                 >
-                  <tab.icon size={18} />
                   {tab.label}
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="tab-indicator"
+                      className="tab-indicator"
+                    />
+                  )}
                 </button>
               ))}
             </div>
 
-            <div className="space-y-20 min-h-[50vh]">
+            <div style={{ minHeight: '50vh' }}>
               {/* Overview Tab */}
               {activeTab === 'overview' && (
-                <motion.div variants={itemVariants} className="space-y-12">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <motion.div variants={itemVariants}>
+                  <div className="metrics-grid">
                     {[
-                      { label: 'Total Volume', value: `N${(users.length * 50000).toLocaleString()}`, icon: CreditCard },
-                      { label: 'Gifted', value: users.filter(u => u.is_gifted).length, icon: ShieldCheck },
-                      { label: 'Pending', value: users.filter(u => !u.is_gifted).length, icon: RefreshCw },
+                      { label: 'Total Volume', value: `₦${activeVol.toLocaleString()}`, icon: Activity },
+                      { label: 'Gifted Applicants', value: users.filter(u => u.is_gifted).length, icon: CheckCircle2 },
+                      { label: 'Pending Applicants', value: users.filter(u => !u.is_gifted).length, icon: Users },
                     ].map((stat, i) => (
-                      <div key={i} className="glass-card p-10 group hover:border-accent-primary transition-all">
-                        <stat.icon className="text-accent-primary mb-6" size={32} />
-                        <div className="text-4xl font-black">{stat.value}</div>
-                        <div className="text-lg text-dim mt-1">{stat.label}</div>
+                      <div key={i} className="metric-card">
+                        <div className="metric-header">
+                          <span>{stat.label}</span>
+                          <stat.icon size={16} />
+                        </div>
+                        <div className="metric-value">{stat.value}</div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="glass-card p-10">
-                    <h3 className="text-2xl font-bold mb-6">Recent Activity</h3>
-                    <p className="text-dim">Monitor the latest applications and gifting updates here.</p>
-                    <div className="mt-8 space-y-4">
-                      {users.slice(0, 5).map(u => (
-                        <div key={u.id} className="flex justify-between items-center py-4 border-b border-white/5">
-                          <span>{u.name} joined</span>
-                          <span className="text-dim text-sm">{new Date(u.created_at).toLocaleDateString()}</span>
-                        </div>
-                      ))}
+                  <div className="section-card">
+                    <div className="section-header">
+                      Recent Applications
+                    </div>
+                    <div>
+                      {users.length === 0 ? (
+                        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-dim)' }}>No applications found.</div>
+                      ) : (
+                        users.slice(0, 5).map(u => (
+                          <div key={u.id} className="list-item">
+                            <div>
+                              <div className="item-main">{u.name}</div>
+                              <div className="item-sub">{u.email}</div>
+                            </div>
+                            <div className="item-sub" style={{ fontWeight: 500 }}>
+                              {new Date(u.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -211,23 +231,23 @@ const AdminApp = () => {
 
               {/* Waitlist Tab */}
               {activeTab === 'waitlist' && (
-                <motion.div variants={itemVariants} className="space-y-8">
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                    <h3 className="text-3xl font-black">Waitlist Management</h3>
-                    <div className="relative w-full max-w-xs">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-dim" size={16} />
+                <motion.div variants={itemVariants}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Waitlist Management</h3>
+                    <div className="search-container">
+                      <Search className="search-icon" size={14} />
                       <input
                         type="text"
-                        placeholder="Search name or email..."
-                        className="input-field pl-12 text-sm !mb-0"
+                        placeholder="Search users..."
+                        className="search-input"
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                       />
                     </div>
                   </div>
 
-                  <div className="admin-table-container">
-                    <table className="admin-table">
+                  <div className="section-card" style={{ overflowX: 'auto' }}>
+                    <table className="data-table">
                       <thead>
                         <tr>
                           <th>Identity</th>
@@ -238,27 +258,32 @@ const AdminApp = () => {
                         </tr>
                       </thead>
                       <tbody>
+                        {filteredUsers.length === 0 ? (
+                          <tr>
+                            <td colSpan="5" style={{ textAlign: 'center', padding: '32px', color: 'var(--text-dim)' }}>No users match your criteria</td>
+                          </tr>
+                        ) : null}
                         {filteredUsers.map(u => (
                           <tr key={u.id}>
                             <td>
-                              <div className="font-bold text-lg">{u.name}</div>
-                              <div className="text-xs text-dim">{u.email}</div>
+                              <div className="item-main">{u.name}</div>
+                              <div className="item-sub">{u.email}</div>
                             </td>
                             <td>
-                              <div className="text-accent-primary font-bold">{u.bank_name}</div>
-                              <code className="text-sm">{u.account_number}</code>
+                              <div className="item-main">{u.bank_name}</div>
+                              <div className="item-sub" style={{ fontFamily: 'monospace' }}>{u.account_number}</div>
                             </td>
-                            <td className="font-mono text-xl">#{u.waitlist_position}</td>
+                            <td style={{ fontFamily: 'monospace', fontWeight: 500 }}>#{u.waitlist_position}</td>
                             <td>
                               <span className={`status-badge ${u.is_gifted ? 'status-gifted' : 'status-pending'}`}>
-                                {u.is_gifted ? 'GIFTED' : 'WAITING'}
+                                {u.is_gifted ? 'Gifted' : 'Pending'}
                               </span>
                             </td>
                             <td>
                               {!u.is_gifted && (
                                 <button
                                   onClick={() => handleGift(u.id)}
-                                  className="btn-show-more !py-2 !px-4 text-xs bg-green-500/10 border-green-500/20 text-green-400"
+                                  className="btn-action"
                                 >
                                   Mark Gifted
                                 </button>
@@ -274,21 +299,31 @@ const AdminApp = () => {
 
               {/* Moderation Tab */}
               {activeTab === 'moderation' && (
-                <motion.div variants={itemVariants} className="space-y-8">
-                  <h3 className="text-3xl font-black">Community Moderation</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <motion.div variants={itemVariants}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '24px' }}>Comments Feed</h3>
+                  <div className="feed-grid">
+                    {comments.length === 0 ? (
+                      <div className="section-card" style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: 'var(--text-dim)' }}>
+                        No comments yet
+                      </div>
+                    ) : null}
                     {comments.map(c => (
-                      <div key={c.id} className="comment-bubble relative group py-8">
-                        <div className="comment-name text-accent-primary">{c.name}</div>
-                        <div className="comment-text text-lg">{c.content}</div>
-                        <div className="text-xs text-dim mt-4 flex items-center justify-between">
-                          {new Date(c.created_at).toLocaleDateString()}
+                      <div key={c.id} className="feed-card">
+                        <div className="feed-header">
+                          <span className="feed-author">{c.name}</span>
                           <button
                             onClick={() => handleDeleteComment(c.id)}
-                            className="bg-red-500/10 border border-red-500/20 text-red-500 px-3 py-1 rounded-lg hover:bg-red-500/20 transition-all"
+                            className="feed-remove"
                           >
-                            Delete
+                            Remove
                           </button>
+                        </div>
+                        <p className="feed-content">{c.content}</p>
+                        <div className="feed-footer">
+                          {new Date(c.created_at).toLocaleString(undefined, {
+                            month: 'short', day: 'numeric', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                          })}
                         </div>
                       </div>
                     ))}
@@ -296,17 +331,15 @@ const AdminApp = () => {
                 </motion.div>
               )}
             </div>
+
+            <footer className="app-footer">
+              <strong>Gifthub Terminal</strong>
+              <span>Version 2.0.0 (Native Build)</span>
+            </footer>
           </motion.div>
         )}
       </AnimatePresence>
-
-      <footer className="footer opacity-50">
-        <span className="footer-brand">Gifthub Terminal</span>
-        <p className="footer-text">
-          Gifthub Admin Dashboard v1.0.0
-        </p>
-      </footer>
-    </div>
+    </>
   )
 }
 

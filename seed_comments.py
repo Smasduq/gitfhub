@@ -1,8 +1,9 @@
 import sys
 import os
-sys.path.append(os.getcwd())
+sys.path.append(os.path.join(os.getcwd(), "backend"))
 
-from backend import models, database
+import models
+import database
 from datetime import datetime, timedelta
 
 def add_demo_comments():
