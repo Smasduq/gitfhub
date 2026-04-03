@@ -7,7 +7,7 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from . import models, schemas, database
+import models, schemas, database
 
 # Load environment variables
 load_dotenv()
