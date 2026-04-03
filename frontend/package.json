@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://smasduq.github.io/gifthub",
+  "homepage": "https://smasduq.github.io/gifthub/frontend",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
